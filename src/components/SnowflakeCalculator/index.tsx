@@ -2,33 +2,161 @@ import React from 'react';
 import 'font-awesome/css/font-awesome.min.css';
 import './SnowflakeCalculator.css'
 import {Button, Modal, Table, Col, Row, Form, Container} from 'react-bootstrap';
+import {
+  wareHouseTableHeaders,
+  storageCosts,
+  categories,
+  storageTypes,
+  storageSize,
+  categoryOfApplication,
+  geographyOfApplication,
+  cloudPlatforms
+} from '../../const/SnowflakeConstants';
 
-const tableHeaders = ['Category','Geography','Size','No of days per week', 'No of sessions per day', 
-  'Duration of session (mins)', 'Estimated Storage (TB)', 'Type of storage', 'Action'		
-]
-let estimatedStorage = '';
-let categoryOfApplication = 'Standard';
-let typeOfStorage = 'On Demand';
-let numberOfSessionsPerDay = '';
-let geographyOfApplication = 'US';
-let sizeOfWarehouse = 'XS';
-let numberOfDaysOfWeek = '1';
-let durationOfEachSession = '';
 
 class SnowflakeCalculator extends React.Component {
   constructor(props:any) {
     super(props);
     this.state = {
       isPopupOpen: false,
-      addedWareHouses: [],
-      onclickSave: this.onclickSave,
+      wareHouses: [],
+      wareHouseDialogValues: this.initialDialogValues(),
       totalCost: 0,
       totalCredits: 0
     };
   }
 
+  deleteWareHouse = (event:any) => {
+    const { wareHouses }: any = this.state;
+    const index = wareHouses.indexOf(wareHouses[event.target.id]);
+    if (index > -1) {
+      wareHouses.splice(index, 1);
+    }
+    this.setState({
+      wareHouses
+    })
+    this.calculateCost(event);
+  }
+
+  initialDialogValues = () => ({
+    categoryOfApplication : 'Standard',
+    cloudPlatform: 'Amazon Web Services (AWS)', 
+    geographyOfApplication : 'US',
+    typeOfStorage : 'On Demand',
+    sizeOfWarehouse : 'XS',
+    numberOfSessionsPerDay : '',
+    numberOfDaysOfWeek : '1',
+    estimatedStorage : '', 
+    durationOfEachSession : '',
+  })
+
+  clearWareHouse = () => {
+    this.setState({
+      wareHouses:[],
+      totalCost:0,
+      totalCredits:0
+    });
+  }
+
+  handleDialogChange = (name: any, value: any) => {
+    let { wareHouseDialogValues }: any = this.state;
+    wareHouseDialogValues[name] = value;
+    this.setState({wareHouseDialogValues});
+  }
+
+  handleDialogClose = () => {
+    this.setState({
+      isPopupOpen:false,
+      wareHouseDialogValues: this.initialDialogValues()
+    })
+  }
+
+  onclickSave = (event:any) => {
+    event.preventDefault();
+    let { wareHouses, wareHouseDialogValues }: any = this.state;
+    wareHouses.push(wareHouseDialogValues)
+    this.setState({
+      wareHouses,
+      isPopupOpen: false,
+      wareHouseDialogValues: this.initialDialogValues()
+    });
+    this.calculateCost(event);
+  }  
+
+  isFormNotValid = () => {
+    const {wareHouseDialogValues}: any = this.state;
+    let isNotValid = false;
+    Object.values(wareHouseDialogValues).forEach((value:any) =>{
+      if(!value) isNotValid = true;
+    })
+    return isNotValid;
+  }
+
+  calculateCost = (event:any) => {
+    event.preventDefault();
+    let totalCredits = 0;
+    let totalCharges = 0;
+    const { wareHouses }: any = this.state;
+    wareHouses.forEach((warehouse:any) => {
+      const { durationOfEachSession, numberOfSessionsPerDay, numberOfDaysOfWeek, sizeOfWarehouse,
+        categoryOfApplication, geographyOfApplication, typeOfStorage, estimatedStorage, cloudPlatform
+      }: any  = warehouse;
+      let totalHrs = (Number(durationOfEachSession) * Number(numberOfSessionsPerDay) * Number(numberOfDaysOfWeek)) / 60;
+      let credits = this.getCreditHrs(sizeOfWarehouse) * totalHrs;
+      let charges = (credits * this.getPriceByCategory(geographyOfApplication, categoryOfApplication)) +
+        (this.getStorageCost(geographyOfApplication, typeOfStorage) * Number(estimatedStorage)) + 
+        (this.getPriceByPlatform(cloudPlatform));
+      totalCredits += credits;
+      totalCharges += charges;
+    });
+    totalCredits = Math.round(totalCredits * 100) / 100;
+    totalCharges = Math.round(totalCharges * 100) / 100;
+    this.setState({
+      totalCost: totalCharges,
+      totalCredits: totalCredits
+    })
+  }
+
+  getStorageCost:any = (geographyOfApplication:any, typeOfStorage:any) => {
+    if (typeOfStorage === storageTypes.ON_DEMAND) {
+      return 40;
+    } else if (typeOfStorage === storageTypes.PRE_PURCHASE) {
+      const item = storageCosts.find((storageCost) => storageCost.geo === geographyOfApplication);
+      return item?.rate;
+    }
+  }
+
+  getPriceByCategory:any = (geographyOfApplication:any, category:any) => {
+    const item = categories.find((category) => category.geo === geographyOfApplication)
+    if (category === categoryOfApplication.STANDARD) {
+      return item?.std;
+    } else if (category === categoryOfApplication.ENTERPRISE) {
+      return item?.ent;
+    } else if (category === categoryOfApplication.BUSINESS_CRITICAL) {
+      return item?.biz;
+    }
+  }
+
+  getCreditHrs:any = (size:any) => {
+    const item = storageSize.find((storageItem) => storageItem?.size === size)
+    return item?.credits;
+  }
+
+  getPriceByPlatform:any = (platform:any) => {
+    switch (platform) {
+      case cloudPlatforms.AWS:
+        return 0;
+      case cloudPlatforms.AZURE:
+        return 0;
+      case cloudPlatforms.GCP:
+        return 0;
+      default:
+        return 0;
+    }
+  }  
+
   public render() {
-    const addedWareHouses:any = this.state;
+    const { wareHouses, totalCost, totalCredits }: any = this.state;
     return (
       <Container style={{maxWidth:'1561px'}}>
         <div>
@@ -44,174 +172,74 @@ class SnowflakeCalculator extends React.Component {
           <Table responsive>
             <thead>
               <tr>
-                {Array.from({ length: tableHeaders.length }).map((_, index) => (
-                  <th className="TableTitle" key={index}>{tableHeaders[index]}</th>
+                {wareHouseTableHeaders.map((header, index) => (
+                  <th className="TableTitle" key={index}>{header}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: addedWareHouses.addedWareHouses.length }).map((_, index) => (
-                  <tr id={index.toString()}>
-                    {
-                    addedWareHouses.addedWareHouses[index].map((addedWareHouse:any, innerIndex:any) =>  (
-                    <td key={innerIndex}>{addedWareHouse}</td>
-                  ))}
-                  <td key={9}><Button id={index.toString()} onClick={event => this.deleteWareHouse(event)} variant="danger">Delete</Button></td>
-                  </tr>
+              {wareHouses.map((wareHouse: any, index: any) => (
+                <tr key={index} id={index.toString()}>
+                  {Object.values(wareHouse).map((itemValues: any,itemIndex: any) => (
+                    <td key={itemIndex}>{itemValues}</td>)
+                  )}
+                  <td key={wareHouse.length + 1}>
+                    <Button id={index.toString()}
+                    onClick={event => this.deleteWareHouse(event)}
+                    variant="danger">
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </Table>
         </div>
-        <this.app/>
+        {this.renderFooter()}
+        {this.renderDialog()}
         <p className="costAndCredit">
-          Estimated Cost of the above is {addedWareHouses.totalCost} USD per month
+          Estimated Cost of the above is {totalCost} USD per month
         </p>
         <p className="costAndCredit">
-          Total credits consumed is {addedWareHouses.totalCredits} per month
+          Total credits consumed is {totalCredits} per month
         </p>
       </Container>
     );
   }
 
-  deleteWareHouse = (event:any) => {
-    const addedWareHouses:any = this.state;
-    const index = addedWareHouses.addedWareHouses.indexOf(addedWareHouses.addedWareHouses[event.target.id]);
-    if (index > -1) {
-      addedWareHouses.addedWareHouses.splice(index, 1);
-    }
-    this.setState({
-      addedWareHouses: addedWareHouses.addedWareHouses
-    })
-    this.calculateCost(event);
-  }
-
-  onclickSave = (event:any) => {
-    event.preventDefault();
-    const addedWareHouses:any = this.state;
-    let res = [];
-    res.push(categoryOfApplication, geographyOfApplication, sizeOfWarehouse, numberOfDaysOfWeek,
-      numberOfSessionsPerDay, durationOfEachSession, estimatedStorage, typeOfStorage);
-    addedWareHouses.addedWareHouses.push(res); 
-    this.setState({
-      addedWareHouses: addedWareHouses.addedWareHouses,
-      isPopupOpen: false
-    });
-    estimatedStorage = '';
-    categoryOfApplication = 'Standard';
-    typeOfStorage = 'On Demand';
-    numberOfSessionsPerDay = '';
-    geographyOfApplication = 'US';
-    sizeOfWarehouse = 'XS';
-    numberOfDaysOfWeek = '1';
-    durationOfEachSession = '';
-    this.calculateCost(event);
-  }  
-
-  calculateCost = (event:any) => {
-    event.preventDefault();
-    const currentState:any = this.state;
-    const addedWareHouses = currentState.addedWareHouses;
-    let totalHrs = 0;
-    let totalCredits = 0;
-    let totalCharges = 0;
-    addedWareHouses.forEach((addedWareHouse:any) => {
-      totalHrs = (Number(addedWareHouse[5]) * Number(addedWareHouse[4]) * Number(addedWareHouse[3])) / 60;
-      let newTotalCredits = (this.getCreditHrs(addedWareHouse[2])) * ((Number(addedWareHouse[5]) * Number(addedWareHouse[4]) * Number(addedWareHouse[3])) / 60);
-      totalCredits += this.getCreditHrs(addedWareHouse[2]) * totalHrs;
-      totalCharges += (newTotalCredits * this.getPriceByCategory(addedWareHouse[1], addedWareHouse[0])) +
-        (this.getStorageCost(addedWareHouse[1], addedWareHouse[7]) * Number(addedWareHouse[6]))
-    });
-    totalCredits = Math.round(totalCredits * 100) / 100;
-    totalCharges = Math.round(totalCharges * 100) / 100;
-    this.setState({
-      totalCost: totalCharges,
-      totalCredits: totalCredits
-    })
-  }
-
-  getStorageCost:any = (geographyOfApplication:any, typeOfStorage:any) => {
-    if (typeOfStorage === 'On Demand') {
-      return 40;
-    }
-    const storageCosts =   [{geo:'US', rate:23},  
-      {geo:'Canada',rate:25},
-      {geo:'Ireland',rate: 23}, 
-      {geo:'Frankfurt',rate:24.5}, 
-      {geo: 'Sydney', rate: 25},  
-      {geo:'Singapore', rate:25}, 
-      {geo: 'Tokyo', rate:25}, 
-      {geo:'Mumbai', rate:25
-    }]
-    let dummycost:any =storageCosts.filter((storageCost) => {
-      return storageCost.geo === geographyOfApplication
-    })
-    if (typeOfStorage === 'Pre Purchase') {
-      return dummycost[0].rate;
-    }
-  }
-
-  getPriceByCategory:any = (geographyOfApplication:any, categoryOfApplication:any) => {
-    const categories =   [{geo:'US', std:2, ent:3, biz:4},
-      {geo:'Canada', std:2.25, ent:3.5, biz:4.5}, 
-      {geo:'Ireland', std:2.5, ent:3.7, biz:4.5},
-      {geo:'Frankfurt', std:2.7, ent:4, biz:5.4},
-      {geo:'Sydney', std:2.75, ent:4.05 ,biz:5.5},  
-      {geo:'Singapore', std:2.5, ent:3.7, biz:5.7}, 
-      {geo:'Tokyo', std:2.85, ent:4.3 ,biz:5.7},
-      {geo:'Mumbai', std:2.2, ent:3.3, biz:4.4
-    }]
-    let dummycat:any =categories.filter((category) => {
-      return category.geo === geographyOfApplication
-    })
-    if (categoryOfApplication === 'Standard') {
-      return dummycat[0].std;
-    } else if (categoryOfApplication === 'Enterprise') {
-      return dummycat[0].ent;
-    } else if (categoryOfApplication === 'Business Critical') {
-      return dummycat[0].biz
-    }
-  }
-
-  getCreditHrs:any= (size:any) => {
-    switch(size) {
-      case 'XS':
-        return 1;
-      case 'S':
-        return 2;
-      case 'M':
-        return 4;
-      case 'L':
-        return 8;
-      case 'XL':
-        return 16;
-      case '2XL':
-        return 32;
-      case '3XL':
-        return 64;
-      case '4XL':
-        return 128;
-    }
-  }
-
-  app = ()=> {
-    const currentState:any = this.state;
-    const onclickSave:any = this.state;
+  renderFooter = () => {
+    const {wareHouses}: any = this.state
     return (
       <>
         <Button variant="primary" onClick={() => {this.setState({isPopupOpen:true})}}><i className="fa fa-plus" ></i>
           Add Entry
         </Button>
-        <Button className="clearAll" variant="primary" onClick={() => {this.setState({addedWareHouses:[],totalCost:0,totalCredits:0})}}>
+        { wareHouses.length > 0 &&
+        <Button 
+          className="clearAll"
+          variant="primary" 
+          onClick={this.clearWareHouse}
+          >
           <i className="fa fa-trash"></i>
           Clear All
         </Button>
-        {currentState.isPopupOpen &&         
+        }
+      </>
+    );
+  }
+
+  renderDialog = () => {
+    const {isPopupOpen, wareHouseDialogValues}: any = this.state;
+    return(
+      <>
+      {isPopupOpen &&         
           <Modal
-            show={currentState.isPopupOpen}
-            onHide={() => {this.setState({isPopupOpen:false})}}
+            show={isPopupOpen}
+            onHide={this.handleDialogClose}
             size="xl"
             aria-labelledby="contained-modal-title-vcenter"
             centered
+            animation={false}
           >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
@@ -225,12 +253,23 @@ class SnowflakeCalculator extends React.Component {
                 <Form.Group as={Col} controlId="Category of application">
                   <Form.Label>Category of application</Form.Label>
                   <Form.Control required as="select"
-                    onChange={event =>
-                      categoryOfApplication =  event.target.value           
-                    }>
-                    <option>Standard</option>
-                    <option>Enterprise</option>
-                    <option>Business Critical</option>
+                    value={wareHouseDialogValues?.categoryOfApplication}
+                    onChange={(event: any) => this.handleDialogChange('categoryOfApplication', event.target.value)}>
+                    {Object.values(categoryOfApplication).map((category: any, index: number) => (
+                      <option key={index}>{category}</option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col xs={0} md={6}>
+                <Form.Group as={Col} controlId="Cloud Platform">
+                  <Form.Label>Cloud Platform</Form.Label>
+                  <Form.Control required as="select"
+                    value={wareHouseDialogValues?.cloudPlatform}
+                    onChange={(event:any) => this.handleDialogChange('cloudPlatform', event.target.value)}>
+                    {Object.values(cloudPlatforms).map((platform: any, index: number) => (
+                      <option key={index}>{platform}</option>
+                    ))}
                   </Form.Control>
                 </Form.Group>
               </Col>
@@ -238,30 +277,23 @@ class SnowflakeCalculator extends React.Component {
                 <Form.Group as={Col} controlId="Geography of application">
                   <Form.Label>Geography of application</Form.Label>
                   <Form.Control required as="select"
-                    onChange={event =>
-                      geographyOfApplication =  event.target.value           
-                    }>
-                    <option>US</option>
-                    <option>Ireland</option>
-                    <option>Frankfurt</option>
-                    <option>Sydney</option>
-                    <option>Singapore</option>
-                    <option>Tokyo</option>
-                    <option>Mumbai</option>
+                    value={wareHouseDialogValues?.geographyOfApplication}
+                    onChange={(event:any) => this.handleDialogChange('geographyOfApplication', event.target.value)}>
+                    {geographyOfApplication.map((geo: any, index: number) => (
+                      <option key={index}>{geo}</option>
+                    ))}
                   </Form.Control>
                 </Form.Group>
               </Col>
-            </Row>
-            <Row>
               <Col xs={0} md={6}>
                 <Form.Group as={Col} controlId="Type of storage">
                   <Form.Label>Type of storage</Form.Label>
                   <Form.Control required as="select"
-                    onChange={event =>
-                      typeOfStorage =  event.target.value           
-                    }>
-                    <option>On Demand</option>
-                    <option>Pre Purchase</option>
+                    value={wareHouseDialogValues?.typeOfStorage}
+                    onChange={(event:any) => this.handleDialogChange('typeOfStorage', event.target.value)}>
+                    {Object.values(storageTypes).map((type: any, index: number) => (
+                      <option key={index}>{type}</option>
+                    ))}
                   </Form.Control>
                 </Form.Group>
               </Col>
@@ -269,22 +301,14 @@ class SnowflakeCalculator extends React.Component {
                 <Form.Group as={Col} controlId="Size of warehouse">
                   <Form.Label>Size of warehouse</Form.Label>
                   <Form.Control required as="select"
-                    onChange={event =>
-                      sizeOfWarehouse =  event.target.value           
-                    }>
-                    <option>XS</option>
-                    <option>S</option>
-                    <option>M</option>
-                    <option>L</option>
-                    <option>XL</option>
-                    <option>2XL</option>
-                    <option>3XL</option>
-                    <option>4XL</option>
+                    value={wareHouseDialogValues?.sizeOfWarehouse}
+                    onChange={(event:any) => this.handleDialogChange('sizeOfWarehouse', event.target.value)}>
+                    {storageSize.map((item: any, index: number) => (
+                      <option key={index}>{item?.size}</option>
+                    ))}
                   </Form.Control>
                 </Form.Group>
               </Col>
-            </Row>
-            <Row>
               <Col xs={0} md={6}>
                 <Form.Group as={Col} controlId="Number of sessions per day">
                   <Form.Label>Number of sessions per day</Form.Label>
@@ -293,9 +317,8 @@ class SnowflakeCalculator extends React.Component {
                       autoComplete="off"
                       min="1"
                       type="number"
-                      onChange={event =>
-                        numberOfSessionsPerDay =  event.target.value           
-                      }
+                      value={wareHouseDialogValues?.numberOfSessionsPerDay}
+                      onChange={(event:any) => this.handleDialogChange('numberOfSessionsPerDay', event.target.value)}
                     />
                 </Form.Group>
               </Col>
@@ -303,32 +326,24 @@ class SnowflakeCalculator extends React.Component {
                 <Form.Group as={Col} controlId="Number of days of week">
                   <Form.Label>Number of days of week</Form.Label>
                     <Form.Control required as="select"
-                      onChange={event =>
-                        numberOfDaysOfWeek =  event.target.value           
-                      }>
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                      <option>6</option>
-                      <option>7</option>
+                      value={wareHouseDialogValues?.numberOfDaysOfWeek}
+                      onChange={(event:any) => this.handleDialogChange('numberOfDaysOfWeek', event.target.value)}>
+                      {Array(7).fill('_').map((_: any, index: number) => (
+                        <option key={index}>{index+1}</option>
+                      ))}
                     </Form.Control>
                 </Form.Group>
               </Col>
-            </Row>
-            <Row>
               <Col xs={0} md={6}>
-                <Form.Group as={Col} controlId="Estimated storage p.m (TB)">
-                  <Form.Label>Estimated storage p.m (TB)</Form.Label>
+                <Form.Group as={Col} controlId="Estimated storage per month (TB)">
+                  <Form.Label>Estimated storage per month (TB)</Form.Label>
                     <Form.Control
                       required
                       autoComplete="off"
                       min="1"
                       type="number"
-                      onChange={event =>
-                        estimatedStorage =  event.target.value           
-                      }
+                      value={wareHouseDialogValues?.estimatedStorage}
+                      onChange={(event:any) => this.handleDialogChange('estimatedStorage', event.target.value)}
                     />
                 </Form.Group>
               </Col>
@@ -340,9 +355,8 @@ class SnowflakeCalculator extends React.Component {
                       autoComplete="off"
                       min="1"
                       type="number"
-                      onChange={event =>
-                        durationOfEachSession =  event.target.value           
-                      }
+                      value={wareHouseDialogValues?.durationOfEachSession}
+                      onChange={(event:any) => this.handleDialogChange('durationOfEachSession', event.target.value)}
                     />
                 </Form.Group>
               </Col>
@@ -350,9 +364,9 @@ class SnowflakeCalculator extends React.Component {
           </Form>      
           </Modal.Body>
           <Modal.Footer>
-            <Button type="submit" onClick={onclickSave.onclickSave}><i className="fa fa-plus" ></i>Add</Button>
+            <Button type="submit" disabled={this.isFormNotValid()} onClick={this.onclickSave}><i className="fa fa-plus" ></i>Add</Button>
           </Modal.Footer>
-        </Modal>} 
+        </Modal>}
       </>
     );
   }
