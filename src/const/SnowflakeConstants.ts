@@ -1,30 +1,51 @@
 export const categoryOfApplication = {
-  STANDARD : 'Standard',
-  ENTERPRISE : 'Enterprise',
-  BUSINESS_CRITICAL : 'Business Critical'
-}
+  STANDARD: 'Standard',
+  ENTERPRISE: 'Enterprise',
+  BUSINESS_CRITICAL: 'Business Critical',
+};
 
 export const storageTypes = {
-  ON_DEMAND : 'On Demand',
-  PRE_PURCHASE : 'Pre Purchase'
-}
+  ON_DEMAND: 'On Demand',
+  PRE_PURCHASE: 'Pre Purchase',
+};
 
 export const cloudPlatforms = {
-  AWS : 'Amazon Web Services (AWS)',
-  AZURE : 'Microsoft Azure',
-  GCP : 'Google Cloud Platform'
-}
+  AWS: 'AWS',
+  AZURE: 'Microsoft Azure',
+  GCP: 'Google Cloud Platform',
+};
 
-export const geographyOfApplication = [
-  'US',
-  'Canada',
-  'Ireland',
-  'Frankfurt',
-  'Sydney',
-  'Singapore',
-  'Tokyo',
-  'Mumbai'
-]
+export const geoLocationsForAWS = [
+  'US East (Northern Virginia)',
+  'US East (Ohio)',
+  'US West (Oregon)',
+  'Canada (Center)',
+  'EU (London)',
+  'EU (Ireland)',
+  'EU (Frankfurt)',
+  'Europe (Stockholm)',
+  'Asia Pacific (Sydney)',
+  'Asia Pacific (Singapore)',
+  'Asia Pacific (Tokyo)',
+  'Asia Pacific (Seoul)',
+  'Asia Pacific (Mumbai)',
+];
+
+export const geoLocationsForAZURE = [
+  'East US 2 (Virginia)',
+  'West US 2 (Washington)',
+  'Central US (lowa)',
+  'Canada Central (Toronto)',
+  'West Europe (Netherlands)',
+  'North Europe (Ireland)',
+  'Australia East (Sydney)',
+  'Southeast Asia (Singapore)',
+  'Switzerland North (Zurich)',
+  'Japan East (Tokyo)',
+  'UAE North (Dubai)',
+];
+
+export const geoLocationsForGCP = ['us-central1 (lowa)', 'europe-west2 (London)', 'europe-west4 (Netherlands)'];
 
 export const wareHouseTableHeaders = [
   'Category',
@@ -32,42 +53,377 @@ export const wareHouseTableHeaders = [
   'Geography',
   'Size',
   'No of days per week',
-  'No of sessions per day', 
+  'No of sessions per day',
   'Duration of session (mins)',
   'Estimated Storage (TB)',
   'Type of storage',
-  'Action'		
-]
+  'Action',
+];
 
 export const storageCosts = [
-  {geo:'US', rate:23},  
-  {geo:'Canada',rate:25},
-  {geo:'Ireland',rate: 23}, 
-  {geo:'Frankfurt',rate:24.5}, 
-  {geo:'Sydney', rate: 25},
-  {geo:'Singapore', rate:25},
-  {geo:'Tokyo', rate:25},
-  {geo:'Mumbai', rate:25
-}]
+  {
+    platform: 'AWS',
+    geo: 'US East (Northern Virginia)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'AWS',
+    geo: 'US East (Ohio)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'AWS',
+    geo: 'US West (Oregon)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Canada (Center)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'AWS',
+    geo: 'EU (London)',
+    onDemand: 42,
+    prePurchase: 24,
+  },
+  {
+    platform: 'AWS',
+    geo: 'EU (Ireland)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'AWS',
+    geo: 'EU (Frankfurt)',
+    onDemand: 45,
+    prePurchase: 24.5,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Europe (Stockholm)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Sydney)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Singapore)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Tokyo)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Seoul)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Mumbai)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'East US 2 (Virginia)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'West US 2 (Washington)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Central US (lowa)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Canada Central (Toronto)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'West Europe (Netherlands)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'North Europe (Ireland)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Australia East (Sydney)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Southeast Asia (Singapore)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Switzerland North (Zurich)',
+    onDemand: 50.5,
+    prePurchase: 28.8,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Japan East (Tokyo)',
+    onDemand: 46,
+    prePurchase: 25,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'UAE North (Dubai)',
+    onDemand: 44.5,
+    prePurchase: 25.4,
+  },
+  {
+    platform: 'Google Cloud Platform',
+    geo: 'us-central1 (lowa)',
+    onDemand: 35,
+    prePurchase: 20,
+  },
+  {
+    platform: 'Google Cloud Platform',
+    geo: 'europe-west2 (London)',
+    onDemand: 40,
+    prePurchase: 23,
+  },
+  {
+    platform: 'Google Cloud Platform',
+    geo: 'europe-west4 (Netherlands)',
+    onDemand: 35,
+    prePurchase: 20,
+  },
+];
 
 export const categories = [
-  {geo:'US', std:2, ent:3, biz:4},
-  {geo:'Canada', std:2.25, ent:3.5, biz:4.5}, 
-  {geo:'Ireland', std:2.5, ent:3.7, biz:4.5},
-  {geo:'Frankfurt', std:2.7, ent:4, biz:5.4},
-  {geo:'Sydney', std:2.75, ent:4.05 ,biz:5.5},  
-  {geo:'Singapore', std:2.5, ent:3.7, biz:5.7}, 
-  {geo:'Tokyo', std:2.85, ent:4.3 ,biz:5.7},
-  {geo:'Mumbai', std:2.2, ent:3.3, biz:4.4
-}]
+  {
+    platform: 'AWS',
+    geo: 'US East (Northern Virginia)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'AWS',
+    geo: 'US East (Ohio)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'AWS',
+    geo: 'US West (Oregon)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Canada (Center)',
+    standard: 2.25,
+    enterprise: 3.5,
+    businessCritical: 4.5,
+  },
+  {
+    platform: 'AWS',
+    geo: 'EU (London)',
+    standard: 2.7,
+    enterprise: 4,
+    businessCritical: 5.4,
+  },
+  {
+    platform: 'AWS',
+    geo: 'EU (Ireland)',
+    standard: 2.6,
+    enterprise: 3.9,
+    businessCritical: 5.2,
+  },
+  {
+    platform: 'AWS',
+    geo: 'EU (Frankfurt)',
+    standard: 2.6,
+    enterprise: 3.9,
+    businessCritical: 5.2,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Europe (Stockholm)',
+    standard: 2.6,
+    enterprise: 3.9,
+    businessCritical: 5.2,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Sydney)',
+    standard: 2.75,
+    enterprise: 4.05,
+    businessCritical: 5.5,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Singapore)',
+    standard: 2.5,
+    enterprise: 3.7,
+    businessCritical: 5.0,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Tokyo)',
+    standard: 2.85,
+    enterprise: 4.3,
+    businessCritical: 5.7,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Seoul)',
+    standard: 2.75,
+    enterprise: 4.05,
+    businessCritical: 5.5,
+  },
+  {
+    platform: 'AWS',
+    geo: 'Asia Pacific (Mumbai)',
+    standard: 2.2,
+    enterprise: 3.3,
+    businessCritical: 4.4,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'East US 2 (Virginia)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'West US 2 (Washington)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Central US (lowa)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Canada Central (Toronto)',
+    standard: 2.25,
+    enterprise: 3.5,
+    businessCritical: 4.5,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'West Europe (Netherlands)',
+    standard: 2.6,
+    enterprise: 3.9,
+    businessCritical: 5.2,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'North Europe (Ireland)',
+    standard: 2.6,
+    enterprise: 3.9,
+    businessCritical: 5.2,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Australia East (Sydney)',
+    standard: 2.75,
+    enterprise: 4.05,
+    businessCritical: 5.5,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Southeast Asia (Singapore)',
+    standard: 2.5,
+    enterprise: 3.7,
+    businessCritical: 5,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Switzerland North (Zurich)',
+    standard: 3.1,
+    enterprise: 4.65,
+    businessCritical: 6.2,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'Japan East (Tokyo)',
+    standard: 2.85,
+    enterprise: 4.3,
+    businessCritical: 5.7,
+  },
+  {
+    platform: 'Microsoft Azure',
+    geo: 'UAE North (Dubai)',
+    standard: 2.7,
+    enterprise: 4.4,
+    businessCritical: 5.4,
+  },
+  {
+    platform: 'Google Cloud Platform',
+    geo: 'us-central1 (lowa)',
+    standard: 2,
+    enterprise: 3,
+    businessCritical: 4,
+  },
+  {
+    platform: 'Google Cloud Platform',
+    geo: 'europe-west2 (London)',
+    standard: 2.7,
+    enterprise: 4,
+    businessCritical: 5.4,
+  },
+  {
+    platform: 'Google Cloud Platform',
+    geo: 'europe-west4 (Netherlands)',
+    standard: 2.6,
+    enterprise: 3.9,
+    businessCritical: 5.2,
+  },
+];
 
 export const storageSize = [
-  {size:'XS', credits:1},
-  {size:'S', credits:2},
-  {size:'M', credits:4},
-  {size:'L', credits:8},
-  {size:'XL', credits:16},
-  {size:'2XL', credits:32},
-  {size:'2XL', credits:64},
-  {size:'4XL', credits:128},
-]
+  { size: 'XS', credits: 1 },
+  { size: 'S', credits: 2 },
+  { size: 'M', credits: 4 },
+  { size: 'L', credits: 8 },
+  { size: 'XL', credits: 16 },
+  { size: '2XL', credits: 32 },
+  { size: '2XL', credits: 64 },
+  { size: '4XL', credits: 128 },
+];

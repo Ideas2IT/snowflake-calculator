@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: Helvetica, Arial,Helvetica,sans-serif;
+  font-family: Helvetica, Arial, Helvetica, sans-serif;
 }
 
 .mainContainer {
@@ -21,10 +21,10 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-  .content{
+  .content {
     color: green;
     width: 97%;
-    margin-left: 10px;  
+    margin-left: 10px;
   }
 }
 
@@ -35,9 +35,9 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-  .TableHeader{
+  .TableHeader {
     font-size: 20px;
-    padding-top: 1em;  
+    padding-top: 1em;
   }
 }
 
@@ -50,7 +50,8 @@ tr {
   background-color: rgb(238, 238, 238);
 }
 
-.table th, .table td {
+.table th,
+.table td {
   vertical-align: middle;
   text-align: center;
 }
@@ -67,12 +68,10 @@ tr {
 
 .btn-primary {
   color: #fff;
-  background-color:#2e83de;
-  border-color:#2e83de;
+  background-color: #2e83de;
+  border-color: #2e83de;
 }
 
 .fa {
   padding-right: 6px;
 }
-  
-
