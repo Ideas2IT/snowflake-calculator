@@ -1,5 +1,5 @@
 import './App.css';
-import AppWrapper from './components/AppWrapper';
+import Dashboard from './pages/Dashboard';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 function App() {
@@ -7,9 +7,7 @@ function App() {
     <BrowserRouter>
       <Switch>
         <Route path='/'>
-          <div>
-            <AppWrapper />
-          </div>
+          <Dashboard />
         </Route>
       </Switch>
     </BrowserRouter>

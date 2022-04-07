@@ -14,6 +14,7 @@ import {
   geoLocationsForGCP,
   cloudPlatforms,
 } from '../../const/SnowflakeConstants';
+import LineChartComponent from '../LineChart';
 
 class SnowflakeCalculator extends React.Component {
   constructor(props: any) {
@@ -192,53 +193,66 @@ class SnowflakeCalculator extends React.Component {
   public render() {
     const { wareHouses, totalCost, totalCredits }: any = this.state;
     return (
-      <Container style={{ maxWidth: '1561px' }}>
-        <div>
-          <h3 className='header'>SNOWFLAKE PRICING</h3>
-        </div>
-        <p className='content'>
-          Designed to help you estimate your Snowflake costs. Understand what you will pay for and control your cost
-        </p>
-        <p className='TableHeader'>All warehouses</p>
-        <div className='TableTitle'>
-          <Table responsive>
-            <thead>
-              <tr>
-                {wareHouseTableHeaders.map((header, index) => (
-                  <th className='TableTitle' key={index}>
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {wareHouses.map((wareHouse: any, index: any) => (
-                <tr key={index} id={index.toString()}>
-                  {Object.values(wareHouse).map((itemValues: any, itemIndex: any) => (
-                    <td key={itemIndex}>{itemValues}</td>
+      <div>
+        <Container>
+          <div className='my-5'>
+            <h3 className='header'>SNOWFLAKE PRICING</h3>
+            <p className='content mt-3'>
+              Designed to help you estimate your Snowflake costs. Understand what you will pay for and control your cost
+            </p>
+          </div>
+          <div>
+            <p className='TableHeader'>All warehouses</p>
+            <div className='TableTitle'>
+              <Table responsive className='mb-0'>
+                <thead>
+                  <tr>
+                    {wareHouseTableHeaders.map((header, index) => (
+                      <th className='TableTitle' key={index}>
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {wareHouses.map((wareHouse: any, index: any) => (
+                    <tr key={index} id={index.toString()}>
+                      {Object.values(wareHouse).map((itemValues: any, itemIndex: any) => (
+                        <td key={itemIndex}>{itemValues}</td>
+                      ))}
+                      <td key={wareHouse.length + 1}>
+                        <Button id={index.toString()} onClick={(event) => this.deleteWareHouse(event)} variant='danger'>
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
                   ))}
-                  <td key={wareHouse.length + 1}>
-                    <Button id={index.toString()} onClick={(event) => this.deleteWareHouse(event)} variant='danger'>
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-        {this.renderFooter()}
-        {this.renderDialog()}
-        <p className='costAndCredit'>Estimated Cost of the above is {totalCost} USD per month</p>
-        <p className='costAndCredit'>Total credits consumed is {totalCredits} per month</p>
-      </Container>
+                </tbody>
+              </Table>
+            </div>
+            {this.renderFooter()}
+          </div>
+          {this.renderDialog()}
+          {wareHouses.length > 0 && (
+            <div>
+              <div className='mt-4'>
+                <p className='costAndCredit'>Estimated Cost of the above is {totalCost} USD per month</p>
+                <p className='costAndCredit'>Total credits consumed is {totalCredits} per month</p>
+              </div>
+              <div style={{ height: 420 }} className='my-5 border p-4'>
+                <LineChartComponent totalCost={totalCost} percentage={5} />
+              </div>
+            </div>
+          )}
+        </Container>
+      </div>
     );
   }
 
   renderFooter = () => {
     const { wareHouses }: any = this.state;
     return (
-      <>
+      <div className='mt-3'>
         <Button
           variant='primary'
           onClick={() => {
@@ -253,7 +267,7 @@ class SnowflakeCalculator extends React.Component {
             Clear All
           </Button>
         )}
-      </>
+      </div>
     );
   };
 

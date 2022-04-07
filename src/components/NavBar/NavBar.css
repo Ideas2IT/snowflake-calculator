@@ -3,9 +3,10 @@
 }
 
 .logo {
-  width: 6em;
+  width: 5em;
 }
 
-a {
-  color: white;
+.brand-title {
+  font-size: 17px;
+  color: white !important;
 }

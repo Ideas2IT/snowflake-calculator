@@ -10,17 +10,13 @@ class NavBar extends React.Component {
     return (
       <Navbar className='navbarColor' variant='dark' expand='lg'>
         <Navbar.Brand>
-          <img className='logo' alt='' src={logo}></img>
+          <Nav.Link className='navLink' href='/'>
+            <div className='d-flex align-items-center'>
+              <img className='logo' alt='' src={logo}></img>
+              <span className='brand-title ml-3 pt-3'>Snowflake Pricing</span>
+            </div>
+          </Nav.Link>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls='basic-navbar-nav' />
-        <Navbar.Collapse id='basic-navbar-nav'>
-          <Nav className='mr-auto' activeKey={'/'}>
-            <Nav.Link className='navLink' href='/'>
-              Snowflake Pricing
-            </Nav.Link>
-            {/* <Nav.Link  href="#home">Home</Nav.Link> */}
-          </Nav>
-        </Navbar.Collapse>
       </Navbar>
     );
   }
