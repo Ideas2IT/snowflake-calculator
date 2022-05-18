@@ -6,8 +6,8 @@ class Dashboard extends React.Component {
   public render() {
     return (
       <>
-        <NavBar></NavBar>
-        <SnowflakeCalculator></SnowflakeCalculator>
+        <NavBar/>
+        <SnowflakeCalculator/>
       </>
     );
   }

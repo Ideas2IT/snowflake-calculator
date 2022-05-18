@@ -1,0 +1,39 @@
+.user-form-container {
+  width: 320px;
+  margin: auto;
+}
+
+.form-group > label {
+  display: block;
+  padding: 0.333em 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8993ae;
+}
+
+.form-group > input {
+  font-size: 1rem;
+  padding: 0.857em 0 0.857em 0.571em;
+  border-radius: 0.333em;
+  box-shadow: inset 0 0.167em 0.25em 0 rgb(0 0 0 / 14%);
+  border: 0.083em solid #c4cde8;
+  background-color: #fff;
+  -webkit-filter: none;
+  filter: none;
+}
+.form-group > input:hover,
+.form-group > input:focus {
+  border: 0.083em solid #2e83de;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.7em;
+  background: #2e83de;
+  border: 0.071em solid #2e83de;
+  border-radius: 0.285em;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.014em;
+  box-shadow: none !important;
+}

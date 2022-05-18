@@ -15,18 +15,30 @@ import {
   cloudPlatforms,
 } from '../../const/SnowflakeConstants';
 import LineChartComponent from '../LineChart';
+import UserForm from '../UserForm';
 
 class SnowflakeCalculator extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = {
       isPopupOpen: false,
+      showUserComponent: false,
       wareHouses: [],
       wareHouseDialogValues: this.initialDialogValues(),
       totalCost: 0,
       totalCredits: 0,
+      isUserLoggedIn: false,
     };
   }
+
+  componentDidMount() {
+    if (localStorage.getItem('isUserLoggedIn') === 'true') {
+      this.setState({ isUserLoggedIn: true });
+    }
+  }
+
+
+  // Event handlers
 
   deleteWareHouse = (event: any) => {
     const { wareHouses }: any = this.state;
@@ -37,7 +49,7 @@ class SnowflakeCalculator extends React.Component {
     this.setState({
       wareHouses,
     });
-    this.calculateCost(event);
+    this.calculateCost();
   };
 
   initialDialogValues = () => ({
@@ -74,12 +86,20 @@ class SnowflakeCalculator extends React.Component {
   handleDialogClose = () => {
     this.setState({
       isPopupOpen: false,
-      wareHouseDialogValues: this.initialDialogValues(),
     });
   };
 
   onclickSave = (event: any) => {
     event.preventDefault();
+    let { isUserLoggedIn }: any = this.state;
+    if (isUserLoggedIn) {
+      this.saveFormValues();
+    } else {
+      this.setState({ isPopupOpen: false, showUserComponent: true });
+    }
+  };
+
+  saveFormValues() {
     let { wareHouses, wareHouseDialogValues }: any = this.state;
     wareHouses.push(wareHouseDialogValues);
     this.setState({
@@ -87,8 +107,8 @@ class SnowflakeCalculator extends React.Component {
       isPopupOpen: false,
       wareHouseDialogValues: this.initialDialogValues(),
     });
-    this.calculateCost(event);
-  };
+    this.calculateCost();
+  }
 
   isFormNotValid = () => {
     const { wareHouseDialogValues }: any = this.state;
@@ -105,8 +125,21 @@ class SnowflakeCalculator extends React.Component {
     return isNotValid;
   };
 
-  calculateCost = (event: any) => {
-    event.preventDefault();
+  handleUserFormSubmit = (isUserLoggedIn:boolean) => {
+    if(isUserLoggedIn) {
+      localStorage.setItem('isUserLoggedIn', 'true')
+      this.setState({
+        isUserLoggedIn: true,
+        showUserComponent: false,
+      })
+      this.saveFormValues();
+    } else {
+      alert("Failed to submit, try again later")
+    }
+  }
+
+  // business logics
+  calculateCost = () => {
     let totalCredits = 0;
     let totalCharges = 0;
     const { wareHouses }: any = this.state;
@@ -191,7 +224,7 @@ class SnowflakeCalculator extends React.Component {
   };
 
   public render() {
-    const { wareHouses, totalCost, totalCredits }: any = this.state;
+    const { wareHouses, totalCost, totalCredits, isUserLoggedIn, showUserComponent }: any = this.state;
     return (
       <div>
         <Container>
@@ -201,39 +234,9 @@ class SnowflakeCalculator extends React.Component {
               Designed to help you estimate your Snowflake costs. Understand what you will pay for and control your cost
             </p>
           </div>
-          <div>
-            <p className='TableHeader'>All warehouses</p>
-            <div className='TableTitle'>
-              <Table responsive className='mb-0'>
-                <thead>
-                  <tr>
-                    {wareHouseTableHeaders.map((header, index) => (
-                      <th className='TableTitle' key={index}>
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {wareHouses.map((wareHouse: any, index: any) => (
-                    <tr key={index} id={index.toString()}>
-                      {Object.values(wareHouse).map((itemValues: any, itemIndex: any) => (
-                        <td key={itemIndex}>{itemValues}</td>
-                      ))}
-                      <td key={wareHouse.length + 1}>
-                        <Button id={index.toString()} onClick={(event) => this.deleteWareHouse(event)} variant='danger'>
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-            {this.renderFooter()}
-          </div>
+          {showUserComponent ? <UserForm handleUserFormSubmit={this.handleUserFormSubmit}/> : this.renderTable()}
           {this.renderDialog()}
-          {wareHouses.length > 0 && (
+          {isUserLoggedIn && wareHouses.length > 0 && (
             <div>
               <div className='mt-4'>
                 <p className='costAndCredit'>Estimated Cost of the above is {totalCost} USD per month</p>
@@ -249,6 +252,44 @@ class SnowflakeCalculator extends React.Component {
     );
   }
 
+  renderTable = () => {
+    const { wareHouses, isUserLoggedIn }: any = this.state;
+    return (
+      <div>
+        <p className='TableHeader'>All warehouses</p>
+        <div className='TableTitle'>
+          <Table responsive className='mb-0'>
+            <thead>
+              <tr>
+                {wareHouseTableHeaders.map((header, index) => (
+                  <th className='TableTitle' key={index}>
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {isUserLoggedIn &&
+                wareHouses.map((wareHouse: any, index: any) => (
+                  <tr key={index} id={index.toString()}>
+                    {Object.values(wareHouse).map((itemValues: any, itemIndex: any) => (
+                      <td key={itemIndex}>{itemValues}</td>
+                    ))}
+                    <td key={wareHouse.length + 1}>
+                      <Button id={index.toString()} onClick={(event) => this.deleteWareHouse(event)} variant='danger'>
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </Table>
+        </div>
+        {this.renderFooter()}
+      </div>
+    );
+  };
+
   renderFooter = () => {
     const { wareHouses }: any = this.state;
     return (
@@ -256,7 +297,9 @@ class SnowflakeCalculator extends React.Component {
         <Button
           variant='primary'
           onClick={() => {
-            this.setState({ isPopupOpen: true });
+            this.setState({
+              isPopupOpen: true,
+              wareHouseDialogValues: this.initialDialogValues() });
           }}>
           <i className='fa fa-plus'></i>
           Add Entry
